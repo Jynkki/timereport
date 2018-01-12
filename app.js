@@ -31,7 +31,7 @@ app.use(favicon());
 // Uncomment next line if HTTP logging is needed
 //app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
