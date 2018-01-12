@@ -1,0 +1,73 @@
+extends layout
+
+block content
+	.container-fluid
+		div.container-fluid
+			div.row
+				div.col-sm-6.col-md-6.col-lg-6
+					if user.atDesk == true
+						h1
+							| Time Report &nbsp;&nbsp;
+							span.glyphicon.glyphicon-ok.text-success
+					else
+						h1
+							| Time Report &nbsp;&nbsp;
+							span.glyphicon.glyphicon-remove.text-danger
+				//div.col-sm-4.col-md-4.col-lg-4
+				//div.col-sm-6.col-sm-offset-4.col-md-6.col-md-offset-4.col-lg-6
+			table.table#domainsTable.table-hover.table-bordered.tablesorter
+				thead
+					tr
+						th Date
+						th Time In
+						th Time Out
+						th Daily Total Time
+						th Action
+				each item, i in timereport
+					- title= 'test'
+					tr
+						td #{item.date}
+						td #{item.timeIn}
+						td #{item.timeOut}
+						td #{item.totalTime}
+						td
+							a.span.glyphicon.glyphicon-trash(style='white-space:pre;', data-target='#report', data-date='#{item.date}', data-toggle='modal')   
+							a.span.glyphicon.glyphicon-pencil(href='/editdate/#{item.date}')
+							#report.modal.fade(role='dialog', style='position: absolute; top: 10%; left: 0%; margin: 0;')
+								.modal-dialog.modal-md
+									.modal-content
+										.modal-header
+											button.close(type='button', data-dismiss='modal') x
+											h3.modal-title Deletion of a time report
+										.modal-body
+											h4.modal-title Are you sure you want to delete the time report from #{item.date}?
+										.modal-footer
+											form(id="formUserDelete", method="post", action="/deletedate")
+												input(type='hidden', name='value', class='form-control')
+												button.btn.btn-primary(type='submit', form='formUserDelete') OK
+												button.btn.btn-default(type='button', data-dismiss='modal') Cancel
+							script.
+								$(function () {
+								$('#report').on('show.bs.modal', function (event) {
+								var button = $(event.relatedTarget)
+								var recipient = button.data('date')
+								var modal = $(this)
+								modal.find('.modal-body').text('Are you sure you want to delete the report from ' + recipient)
+								modal.find('.modal-footer input[name="value"]').val(recipient)
+								});
+								})
+			script.
+				$(document).ready(function() {
+					$("#domainsTable").tablesorter({
+						dateFormat : "ddmmyyyy", // set the default date format
+									// or to change the format for specific columns, add the dateFormat to the headers option:
+						sortList: [[0,1]],
+						headers: {
+							0: { sorter: "shortDate" },
+							1: { sorter: false },
+							2: { sorter: false },
+							3: { sorter: false },
+							4: { sorter: false },
+						}
+					});
+				});

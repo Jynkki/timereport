@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	H1 
+	#message
+		if (message.info == 'fault') 
+			.alert.alert-danger
+				a.close(href='#', data-dismiss='alert', aria-label='close') ×
+				strong Warning!
+				|  #{message.message}
+
+

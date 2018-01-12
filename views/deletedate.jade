@@ -1,0 +1,26 @@
+extends layout
+
+block content
+	div.container-fluid
+		div.row
+			div.col-sm-6.col-md-6.col-lg-6
+				h1 Account Management
+			div.col-sm-4.col-md-4.col-lg-4
+			div.col-sm-2.col-md-2.col-lg-2
+				h1
+				a.btn.btn-md.btn-info(href='#myModal', type='button', data-toggle='modal') New Account
+	body
+		.container
+			p 
+			h2 Small Modal
+			#myModal.modal.fade(role='dialog', style='position: relative; top: auto; left: auto; margin: 0 auto;')
+				.modal-dialog.modal-sm
+					.modal-content
+						.modal-header
+							button.close(type='button', data-dismiss='modal') x
+							h4.modal-title Modal Header
+						.modal-body
+							p This is a small modal.
+						.modal-footer
+							button.btn.btn-default(type='button', data-dismiss='modal') Close
+

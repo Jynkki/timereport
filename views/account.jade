@@ -1,0 +1,40 @@
+extends layout
+
+block content
+	.container-fluid
+		div.container-fluid
+			div.row
+				div.col-sm-6.col-md-6.col-lg-6
+					h1 Account Management
+				div.col-sm-4.col-md-4.col-lg-4
+				div.col-sm-2.col-md-2.col-lg-2
+					h1
+					a.btn.btn-md.btn-info(href='/registerbank', type='button', margin-top='10ptx') New Account
+			table.table.table-hover.table-bordered
+				thead
+					tr
+						th Username
+						th First Name
+						th Last Name
+						th Action
+				each user, i in users
+					tr
+						td #{user.username}
+						td #{user.firstName}
+						td #{user.lastName}
+						td
+							a.span.glyphicon.glyphicon-trash(style='white-space:pre;', data-target='#{user.username}', data-toggle='modal')   
+							a.span.glyphicon.glyphicon-pencil(href='/editaccount/#{user.username}')
+							#{user.username}.modal.fade(role='dialog', style='position: absolute; top: 10%; left: 0%; margin: 0;')
+								.modal-dialog.modal-md
+									.modal-content
+										.modal-header
+											button.close(type='button', data-dismiss='modal') x
+											h3.modal-title Deletion of User
+										.modal-body
+											h4.modal-title Are you sure you want to delete the user #{user.username}?
+										.modal-footer
+											form(id="formUserDelete", method="post", action="/deletebank/#{user.username}")
+												button(class='btn btn-sm btn-primary', type='submit') OK
+												button.btn.btn-default(type='button', data-dismiss='modal') Cancel
+
