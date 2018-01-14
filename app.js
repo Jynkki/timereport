@@ -5,14 +5,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var dbConfig = require('./db');
+//var dbConfig = require('./db');
 var mongoose = require('mongoose');
 
 // Connect to DB
 var args = process.argv.slice(2);
 if (args == "l") {
     console.log('Reading DB info from local disk');
-    var dbConfig = require('./db');
+    var dbConfig = require('./secrets/db');
 } else {
     console.log('Reading DB info from secret');
     var dbConfig = require('/run/secrets/db');

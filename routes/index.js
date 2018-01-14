@@ -1,12 +1,12 @@
 var moment = require('moment');
 var tz = require('moment-timezone');
-var Client = require("../iot-nodejs");
+var Client = require('ibmiotf');
 var fs = require('fs');
 var args = process.argv.slice(2);
 var appClientConfig;
 
 if (args == "l") {
-  appClientConfig = JSON.parse(fs.readFileSync('./ibm.json', 'utf8'));
+  appClientConfig = JSON.parse(fs.readFileSync('secrets/ibm.json', 'utf8'));
   } else {
   appClientConfig = JSON.parse(fs.readFileSync('/run/secrets/ibm.json', 'utf8'));
   }
@@ -123,7 +123,7 @@ function findAndUpdateUserStatus(req, done){
 
 
 function findOrCreateUser(req, done){ 
-  User.findOne({ 'username' :  req.param('username') }, function(err, usernew) {
+  User.findOne({ 'username' :  req.params.username }, function(err, usernew) {
     // In case of any error, return using the done method
     if (err){
        console.log('Error in Registration: '+err);
@@ -131,21 +131,20 @@ function findOrCreateUser(req, done){
     }
     // already exists
     if (usernew) {
-       //console.log('User already exists with username: ' + req.param('username'));
        return done(true, req.user, 'User already exists');
     } else {
       // if there is no user with that email
       // create the user
       var newUser = new User();
       // set the user's local credentials
-      newUser.username = req.param('username');
-      newUser.password = createHash(req.param('password'));
-      newUser.email = req.param('email');
-      newUser.firstName = req.param('firstName');
-      newUser.lastName = req.param('lastName');
-      newUser.company = req.param('company');
-      newUser.role = req.param('role');
-      newUser.active = (req.param('active') === 'active');
+      newUser.username = req.params.username;
+      newUser.password = createHash(req.params.password);
+      newUser.email = req.params.email;
+      newUser.firstName = req.params.firstName;
+      newUser.lastName = req.params.lastName;
+      newUser.company = req.params.company;
+      newUser.role = req.params.role;
+      newUser.active = (req.params.active === 'active');
 
      // save the user
      newUser.save(function(err) {
@@ -265,7 +264,7 @@ function findOrCreateAddress(req, done){
 function findAndChangeTimeReport(req, editedReport, done){
   //console.log('Date to search ' + editedReport.date);
   //console.log('Device ID to search: ' + req.user.deviceId);
-  TimeReport.findOne( { $and: [{ 'date' :  req.param('date') }, { 'deviceId' : req.user.deviceId} ]}, function(err, oldReport) {
+  TimeReport.findOne( { $and: [{ 'date' :  req.params.date }, { 'deviceId' : req.user.deviceId} ]}, function(err, oldReport) {
     // In case of any error, return using the done method
     if (err){
        console.log('Error in Changing Report: '+err);
@@ -313,7 +312,7 @@ function findAndChangeTimeReport(req, editedReport, done){
 }
 
 function findAndDeleteDate(req, done){
-  TimeReport.findOne({ $and: [{ 'date' :  req.param('value') }, { 'deviceId' : req.user.deviceId}] }, function(err, user) {
+  TimeReport.findOne({ $and: [{ 'date' :  req.params.value }, { 'deviceId' : req.user.deviceId}] }, function(err, user) {
     //console.log('Timereport to delete ' + user);
     // In case of any error, return using the done method
     if (err){
@@ -436,17 +435,14 @@ module.exports = function(passport){
 
         /* GET Edit date report Page */
         router.get('/editdate/:date', isAuthenticated, function(req, res){
-                console.log('edit date started ' + req.param('date') + ' and ' + req.user.deviceId);
-                          TimeReport.find({ $and: [{ 'date' :  req.param('date') }, { 'deviceId' : req.user.deviceId} ]}, function(err, report) {
+                console.log('edit date started ' + req.params.date + ' and ' + req.user.deviceId);
+                          TimeReport.find({ $and: [{ 'date' :  req.params.date }, { 'deviceId' : req.user.deviceId} ]}, function(err, reports) {
                             if (err) return console.error(err);
-                            var changeReport = [];
-                            changeReport.push(report);
-                            console.log('Date to be changed ' + report);
-                            report[0].timeIn = moment(report[0].timeIn).format('HH:mm:ss');
-                            report[0].timeOut = moment(report[0].timeOut).format('HH:mm:ss');
-
-                            console.log('report to change: ' + report);
-                            res.render('editdate', { dates: report});
+                            reports.forEach(function(report) {
+                              report.timeIn = moment(report.timeIn,'ddd MMM DD YYYY HH:mm:ss ZZ').format('HH:mm:ss');
+                              report.timeOut = moment(report.timeOut,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki').format('HH:mm:ss');
+                            });
+                            res.render('editdate', { dates: reports});
                           });
         });
 
@@ -491,14 +487,13 @@ module.exports = function(passport){
         /* Handle Address add POST */
         router.post('/editdate', isAuthenticated, function(req, res) {
                 console.log('timereport add POST received ');
-                //console.log('New date received: ' + req.param('date'));
                 var newTimeReport = new TimeReport();
                 // set the user's local credentials
-                newTimeReport.date = moment(req.param('date'), 'DD-MM-YYYY').format('DD-MM-YYYY');
-                newTimeReport.payload = req.param('payload');
-                var dateformat = moment(req.param('date'), 'DD-MM-YYYY').format('DD-MM-YYYY'); 
-                newTimeReport.timeIn = moment(dateformat  + ' ' + req.param('timeIn'), 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
-                newTimeReport.timeOut = moment(dateformat + ' ' + req.param('timeOut'), 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
+                newTimeReport.date = moment(req.params.date, 'DD-MM-YYYY').format('DD-MM-YYYY');
+                newTimeReport.payload = req.params.payload;
+                var dateformat = moment(req.params.date, 'DD-MM-YYYY').format('DD-MM-YYYY'); 
+                newTimeReport.timeIn = moment(dateformat  + ' ' + req.params.timeIn, 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
+                newTimeReport.timeOut = moment(dateformat + ' ' + req.params.timeOut, 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
                 newTimeReport.totalTime = moment.utc(moment(newTimeReport.timeOut).diff(newTimeReport.timeIn)).format('HH:mm:ss');
                 findAndChangeTimeReport(req, newTimeReport, function(err, newTimeReport, text){
                         if (err) {
