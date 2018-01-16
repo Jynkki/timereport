@@ -262,9 +262,9 @@ function findOrCreateAddress(req, done){
 */
 
 function findAndChangeTimeReport(req, editedReport, done){
-  //console.log('Date to search ' + editedReport.date);
-  //console.log('Device ID to search: ' + req.user.deviceId);
-  TimeReport.findOne( { $and: [{ 'date' :  req.params.date }, { 'deviceId' : req.user.deviceId} ]}, function(err, oldReport) {
+  //console.log('Received new time report: ' + editedReport);
+  //console.log('Pararemter to search on: ' + req.user.deviceId + ' and ' + req.body.date);
+  TimeReport.findOne( { $and: [{ 'date' :  req.body.date }, { 'deviceId' : req.user.deviceId} ]}, function(err, oldReport) {
     // In case of any error, return using the done method
     if (err){
        console.log('Error in Changing Report: '+err);
@@ -277,8 +277,8 @@ function findAndChangeTimeReport(req, editedReport, done){
        newTimeReport.date = editedReport.date;
        newTimeReport.deviceId = req.user.deviceId;
        newTimeReport.payload = editedReport.payload;
-       newTimeReport.timeIn =  moment(editedReport.timeIn, 'ddd, DD MMM YYYY HH:mm:ss ZZ').tz('Europe/Helsinki');
-       newTimeReport.timeOut = moment(editedReport.timeOut, 'ddd, DD MMM YYYY HH:mm:ss ZZ').tz('Europe/Helsinki');
+       newTimeReport.timeIn =  moment(editedReport.timeIn,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki');
+       newTimeReport.timeOut = moment(editedReport.timeOut,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki');
        newTimeReport.totalTime =  ( (newTimeReport.timeIn == null) || (newTimeReport.timeOut == null) ) ? '0' : moment.utc(moment(newTimeReport.timeOut).diff(newTimeReport.timeIn)).format('HH:mm:ss');
        // save the new report
        newTimeReport.save(function(err) {
@@ -293,10 +293,10 @@ function findAndChangeTimeReport(req, editedReport, done){
       oldReport.date = editedReport.date;
       oldReport.payload = editedReport.payload;
       oldReport.deviceId = req.user.deviceId;
-      oldReport.timeIn = moment(editedReport.timeIn).tz('Europe/Helsinki');
-      oldReport.timeOut = moment(editedReport.timeOut).tz('Europe/Helsinki');
+      oldReport.timeIn = moment(editedReport.timeIn,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki');
+      oldReport.timeOut = moment(editedReport.timeOut,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki');
       oldReport.totalTime = editedReport.totalTime;
-      console.log('Updated report details are: ' + oldReport);
+      //console.log('Updated report details are: ' + oldReport);
 
       // save the Report
       oldReport.save(function(err) {
@@ -304,7 +304,7 @@ function findAndChangeTimeReport(req, editedReport, done){
            console.log('Error in saving Report: '+err);
            throw err;
         }
-        console.log('Saving new Report details successful');
+        //console.log('Saving new Report details successful');
         return done(false);
       });
     }
@@ -346,7 +346,7 @@ function findOrCreateTimeReport(req, done){
     }
     // already exists
     if (timeReport) {
-       console.log('Timereport already exists'+ timeReport);
+       //console.log('Timereport already exists'+ timeReport);
        timeReport.date = req.date;
        timeReport.deviceId = req.deviceId;
        timeReport.payload = req.payload;
@@ -439,7 +439,7 @@ module.exports = function(passport){
                           TimeReport.find({ $and: [{ 'date' :  req.params.date }, { 'deviceId' : req.user.deviceId} ]}, function(err, reports) {
                             if (err) return console.error(err);
                             reports.forEach(function(report) {
-                              report.timeIn = moment(report.timeIn,'ddd MMM DD YYYY HH:mm:ss ZZ').format('HH:mm:ss');
+                              report.timeIn = moment(report.timeIn,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki').format('HH:mm:ss');
                               report.timeOut = moment(report.timeOut,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki').format('HH:mm:ss');
                             });
                             res.render('editdate', { dates: reports});
@@ -486,15 +486,20 @@ module.exports = function(passport){
 
         /* Handle Address add POST */
         router.post('/editdate', isAuthenticated, function(req, res) {
-                console.log('timereport add POST received ');
+                //console.log('timereport edit POST received: ' + req.user.deviceId + ' and ' + JSON.stringify(req.body));
                 var newTimeReport = new TimeReport();
                 // set the user's local credentials
-                newTimeReport.date = moment(req.params.date, 'DD-MM-YYYY').format('DD-MM-YYYY');
-                newTimeReport.payload = req.params.payload;
-                var dateformat = moment(req.params.date, 'DD-MM-YYYY').format('DD-MM-YYYY'); 
-                newTimeReport.timeIn = moment(dateformat  + ' ' + req.params.timeIn, 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
-                newTimeReport.timeOut = moment(dateformat + ' ' + req.params.timeOut, 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
-                newTimeReport.totalTime = moment.utc(moment(newTimeReport.timeOut).diff(newTimeReport.timeIn)).format('HH:mm:ss');
+                newTimeReport.date = moment(req.body.date, 'DD-MM-YYYY').format('DD-MM-YYYY');
+                newTimeReport.payload = req.body.payload;
+                var dateformat = moment(req.body.date, 'DD-MM-YYYY').format('DD-MM-YYYY');
+                //console.log('Date to update is: ' + dateformat);
+                newTimeReport.timeIn = moment(dateformat  + ' ' + req.body.timeIn, 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
+                newTimeReport.timeOut = moment(dateformat + ' ' + req.body.timeOut, 'DD-MM-YYYY HH:mm:ss').tz('Europe/Helsinki').format('ddd MMM DD YYYY HH:mm:ss ZZ' );
+                //console.log('Before Total time calculation');
+                var timeIn = moment(newTimeReport.timeIn, "ddd MMM DD YYYY HH:mm:ss.SSS ZZ").toISOString();
+                var timeOut = moment(newTimeReport.timeOut, "ddd MMM DD YYYY HH:mm:ss.SSS ZZ").toISOString();
+                newTimeReport.totalTime = moment.utc(moment(timeOut).diff(timeIn)).format('HH:mm:ss');
+                //console.log('Edited times in timereport. time in: ' + newTimeReport.timeIn + '  time out: ' + newTimeReport.timeOut);
                 findAndChangeTimeReport(req, newTimeReport, function(err, newTimeReport, text){
                         if (err) {
                           console.log('error: ' + text);
@@ -505,8 +510,8 @@ module.exports = function(passport){
                             //console.log('timereport is: ' + timeReportList);
                             if (err) return console.error(err);
                             timeReportList.forEach(function(report) {
-                                report.timeIn = moment(report.timeIn).tz('Europe/Helsinki').format('HH:mm:ss');
-                                report.timeOut = moment(report.timeOut).tz('Europe/Helsinki').format('HH:mm:ss');
+                                report.timeIn = moment(report.timeIn,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki').format('HH:mm:ss');
+                                report.timeOut = moment(report.timeOut,'ddd MMM DD YYYY HH:mm:ss ZZ').tz('Europe/Helsinki').format('HH:mm:ss');
                             });
                             res.render('timereport', { timereport: timeReportList, user: req.user});
                           });

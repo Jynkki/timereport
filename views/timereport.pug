@@ -32,7 +32,7 @@ block content
 						td #{item.totalTime}
 						td
 							a.span.glyphicon.glyphicon-trash(style='white-space:pre;', data-target='#report', data-date='#{item.date}', data-toggle='modal')   
-							a.span.glyphicon.glyphicon-pencil(href='/editdate/#{item.date}')
+							a.span.glyphicon.glyphicon-pencil(href='/editdate/' + item.date)
 							#report.modal.fade(role='dialog', style='position: absolute; top: 10%; left: 0%; margin: 0;')
 								.modal-dialog.modal-md
 									.modal-content

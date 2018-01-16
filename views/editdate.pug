@@ -12,18 +12,18 @@ block content
 							.form-group
 								label.control-label.col-sm-3.col-sm-offset-1(for='date') Date:
 								.col-sm-6
-									input(type='text', name='date', class='form-control', readonly='', id='date', placeHolder='#{date.date}', value='#{date.date}') 
+									input(type='text', name='date', class='form-control', readonly='', id='date', placeHolder=date.date, value=date.date) 
 							.form-group
 								label.control-label.col-sm-3.col-sm-offset-1(for='timeIn') Login Time:
 								.col-sm-6
-									input(type='text', name='timeIn', class='form-control', pattern='([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}', id='24h', placeHolder='#{date.timeIn}', value='#{date.timeIn}')
+									input(type='text', name='timeIn', class='form-control', pattern='([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}', id='24h', placeHolder=date.timeIn, value=date.timeIn)
 							.form-group
 								label.control-label.col-sm-3.col-sm-offset-1(for='timeOut') Logout Time:
 								.col-sm-6
-									input(type='text', name='timeOut', class='form-control', pattern='([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}', id='24h', placeHolder='#{date.timeOut}', value='#{date.timeOut}')
+									input(type='text', name='timeOut', class='form-control', pattern='([01]?[0-9]{1}|2[0-3]{1}):[0-5]{1}[0-9]{1}', id='24h', placeHolder=date.timeOut, value=date.timeOut)
 							.form-group
 								.col-sm-6.col-sm-offset-5
-								input(type='hidden', name='payload', class='form-control', id='payload', placeHolder='#{date.payload}', value='#{date.payload}')
+								input(type='hidden', name='payload', class='form-control', id='payload', placeHolder=date.payload, value=date.payload)
 							.form-group
 								.col-sm-6.col-sm-offset-4.col-md-offset-4
 									button.col-sm-4(class='btn btn-sm btn-primary', type='submit') Save

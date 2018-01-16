@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 
 //var dbConfig = require('./db');
 var mongoose = require('mongoose');
+var Promise = require('bluebird');
+mongoose.Promise = Promise;
 
 // Connect to DB
 var args = process.argv.slice(2);
@@ -24,7 +26,7 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(favicon());
 
