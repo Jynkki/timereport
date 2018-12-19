@@ -34,7 +34,7 @@ appClient.connect();
 
 appClient.on('connect', function () {
     appClient.
-        subscribeToDeviceEvents('iBeamer');
+        subscribeToDeviceEvents('Beacon');
 });
 
 setInterval(function () {
@@ -47,14 +47,14 @@ setInterval(function () {
 
 
 appClient.on('deviceEvent', function (deviceType, deviceId, eventType, format, payload) {
-    //console.log(new Date().toString() + "Device Event from :: "+deviceType+" : "+deviceId+" of event "+eventType+" with payload : "+payload);
-    if ((eventType == "Beacon") && ((JSON.parse(payload).beaconId == 'MiniBeacon_00188') || (JSON.parse(payload).beaconId == 'MiniBeacon_00171') || (JSON.parse(payload).beaconId == 'MiniBeacon_00330'))){
+    console.log(new Date().toString() + "Device Event from :: "+deviceType+" : "+deviceId+" of event "+eventType+" with payload : "+payload);
+    if ((eventType == "Beacon") && ((JSON.parse(payload).BeaconId == 'MiniBeacon_00188') || (JSON.parse(payload).BeaconId == 'MiniBeacon_00171') || (JSON.parse(payload).BeaconId == 'MiniBeacon_00330'))){
       day = new Date();
       var dayWrapper = moment(day).format('DD-MM-YYYY');
       deviceInfo = {
           date : moment(day).format('DD-MM-YYYY'),
           deviceType : deviceType,
-          deviceId : JSON.parse(payload).beaconId,
+          deviceId : JSON.parse(payload).BeaconId,
           eventType : eventType,
           payload : JSON.parse(payload).Beacon,
           timeIn : JSON.parse(payload).Beacon == 'entered' ? moment(day) : null ,

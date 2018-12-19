@@ -13,8 +13,8 @@ if (args == "l") {
   }
 } else {
   var sslOptions = {
-    key: fs.readFileSync('/run/secrets/app_cert_key'),
-    cert: fs.readFileSync('/run/secrets/app_cert'),
+    key: fs.readFileSync('/run/secrets/key.pem'),
+    cert: fs.readFileSync('/run/secrets/cert.pem'),
   }
 }
 
